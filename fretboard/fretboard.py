@@ -79,8 +79,8 @@ class Neck:
 
     def print_fretboard(self):
         """Print the fretboard. """
-        for string in range(6):
-            base = "|"
+        for string, key in enumerate(self.strings.keys()):
+            base = f"{key} |"
             for fret in self.frets:
                 base += fret.get_note(string)
             print(base)
