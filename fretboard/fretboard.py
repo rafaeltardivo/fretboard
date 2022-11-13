@@ -86,7 +86,9 @@ class Neck:
             print(base)
 
 if __name__ == "__main__":
-    n = Neck(21)
+    n = Neck()
+
+    #Base E chord example.
     n.add_chord([
         (1, "G", "index"),
         (2, "D", "ring"),
