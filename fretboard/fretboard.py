@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Tuple
 
@@ -16,19 +16,23 @@ class Fret:
         self.strings = [0] * 6
         self.is_octave = is_octave
 
-    def add_note(self, string:int, finger:int=0):
-        """Add a note to the fretboard.
+    def add_note(self, string: int, finger: int = 0):
+        """Adds a note to the fretboard.
         
-        The note is represented by a finger pressing a string
-        string on this fret.
+        Args:
+            string (int): The string index (0-5).
+            finger (int, optional): The finger pressing the string. Defaults to 0.
         """
         self.strings[string] = finger
 
-    def get_note(self, string:str):
-        """Get a note from the fret.
+    def get_note(self, string: str):
+        """Gets a note from the fret.
         
-        If no note is found (no finger pressing the string), a
-        dash is returned. Octave frets are shorter.
+        Args:
+            string (str): The string index.
+
+        Returns:
+            str: The note representation for this fret and string.
         """
         if self.is_octave:
             note = f"-{self.strings[string] or '-'}-|"
@@ -39,7 +43,7 @@ class Fret:
 class Neck:
     """Guitar neck representation."""
 
-    def __init__(self, fret_count:int=21):
+    def __init__(self, fret_count: int = 21):
         self.frets = []
         self.strings = {
             "e": 0,
@@ -62,14 +66,16 @@ class Neck:
             self.frets.append(Fret(is_octave=is_octave))
 
     def add_chord(self, chord: List[Tuple]):
-        """Ädd a chord to the fretboard.
+        """Adds a chord to the fretboard.
         
         Chords are lists of tuples. Each tuple contains three
         items: fret, string and finger.
 
-        strings and fingers are mapped out for better usability.
+        Strings and fingers are mapped out for better usability.
+
+        Args:
+            chord (List[Tuple]): List of (fret, string, finger) tuples.
         """
-  
         for note in chord:
             fret, string, finger = note
             self.frets[fret - 1].add_note(
@@ -78,7 +84,7 @@ class Neck:
             )
 
     def print_fretboard(self):
-        """Print the fretboard. """
+        """Prints the fretboard."""
         for string, key in enumerate(self.strings.keys()):
             base = f"{key} |"
             for fret in self.frets:
@@ -88,10 +94,42 @@ class Neck:
 if __name__ == "__main__":
     n = Neck()
 
-    #Base E chord example.
-    n.add_chord([
-        (1, "G", "index"),
-        (2, "D", "ring"),
-        (2, "A", "middle"),
-    ])
-    n.print_fretboard()
+    print("Enter chord notes as comma-separated tuples (fret,string,finger).")
+    print("Example: 1,G,index,2,D,ring,2,A,middle")
+    user_input = input("Chord notes: ")
+
+    items = user_input.split(",")
+    if len(items) % 3 != 0:
+        print("Invalid input. Please enter sets of 3 values (fret,string,finger).")
+    else:
+        chord = []
+        valid = True
+        for i in range(0, len(items), 3):
+            try:
+                fret = int(items[i].strip())
+            except ValueError:
+                print(f"Invalid fret value: '{items[i].strip()}'. Fret must be an integer.")
+                valid = False
+                break
+
+            string = items[i+1].strip()
+            finger = items[i+2].strip()
+
+            if not (1 <= fret <= len(n.frets)):
+                print(f"Invalid fret: {fret}. Must be between 1 and {len(n.frets)}.")
+                valid = False
+                break
+            if string not in n.strings:
+                print(f"Invalid string: {string}. Must be one of {list(n.strings.keys())}.")
+                valid = False
+                break
+            if finger not in n.fingers:
+                print(f"Invalid finger: {finger}. Must be one of {list(n.fingers.keys())}.")
+                valid = False
+                break
+
+            chord.append((fret, string, finger))
+
+        if valid:
+            n.add_chord(chord)
+            n.print_fretboard()
